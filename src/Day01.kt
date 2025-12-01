@@ -1,5 +1,5 @@
 fun main() {
-    fun part1(input: List<String>): Int {
+    fun part1(input: List<String>): Long {
         var position = 50
         var zeros = 0
 
@@ -17,10 +17,10 @@ fun main() {
             if (position == 0) zeros++
         }
 
-        return zeros
+        return zeros.toLong()
     }
 
-    fun part2(input: List<String>): Int {
+    fun part2(input: List<String>): Long {
         fun Int.move(distance: Int, dir: Int): Int {
             var z = 0
             var p = this
@@ -66,21 +66,18 @@ fun main() {
             }
         }
 
-        return zeros.toInt()
+        return zeros
     }
 
-    // Or read a large test input from the `src/Day01_test.txt` file:
-    val testInput = readInput("Day01_test")
-    val input = readInput("Day01")
+    val day = 1
+    val testInput = readInput("Day%02d_test".format(day))
+    val input = readInput("Day%02d".format(day))
 
-    check(part1(testInput) == 3)
-    part1(input).println()
-    check(part1(input) == 1089)
+    check("Part 1 - Test", 3, part1(testInput))
+    check("Part 1", 1089, part1(input))
 
-    part2(testInput).println()
-    check(part2(testInput) == 6)
-    part2(input).println()
-    check(part2(input) == 6530)
+    check("Part 2 - Test", 6, part2(testInput))
+    check("Part 2", 6530, part2(input))
 }
 
 private fun Int.floorMod(mod: Int): Int {
