@@ -18,9 +18,8 @@ fun main() {
 
     fun part2(input: List<String>): Long {
         return input.sumOf { bank ->
-            val n = bank.length
             val stack = mutableListOf<Char>()
-            var toRemove = n - 12
+            var toRemove = bank.length - 12
 
             for (digit in bank) {
                 while (stack.isNotEmpty() && toRemove > 0 && stack.last() < digit) {
