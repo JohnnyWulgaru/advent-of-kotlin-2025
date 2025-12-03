@@ -7,7 +7,7 @@ fun main() {
         return 0L
     }
 
-    val day = XX
+    val day = 0
     val testInput = readInput("Day%02d_test".format(day))
     val input = readInput("Day%02d".format(day))
 
