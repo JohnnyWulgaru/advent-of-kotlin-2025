@@ -25,3 +25,26 @@ fun check(s: String, expected: Long, solution: Long) {
     println("\tExpected: $expected, got: $solution")
     check(expected == solution) { "\tERROR: Expected $expected, got $solution" }
 }
+
+data class Coordinate(val x: Int, val y: Int)
+
+fun Coordinate.plus(d: Directions): Coordinate
+    = Coordinate(this.x + d.x, this.y + d.y)
+
+operator fun Coordinate.plus(d: AllDirections): Coordinate
+        = Coordinate(this.x + d.x, this.y + d.y)
+
+enum class Directions(val x: Int, val y: Int) {
+    UP(0, -1), DOWN(0, 1), LEFT(-1, 0), RIGHT(1, 0)
+}
+
+enum class AllDirections(val x: Int, val y: Int) {
+    UP_LEFT(-1, -1),
+    UP(0, -1),
+    UP_RIGHT(1, -1),
+    LEFT(-1, 0),
+    RIGHT(1, 0),
+    DOWN_LEFT(-1, 1),
+    DOWN(0, 1),
+    DOWN_RIGHT(1, 1)
+}
