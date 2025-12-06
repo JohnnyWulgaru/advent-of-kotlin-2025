@@ -1,3 +1,5 @@
+import kotlin.streams.toList
+
 fun main() {
     data class Column(
         var numbers: MutableList<Long> = mutableListOf<Long>(),
@@ -11,18 +13,13 @@ fun main() {
             else -> throw IllegalArgumentException("invalid operation")
         }
     }
-    
-    fun part1(input: List<String>): Long {
-        if (input.isEmpty()) return 0L
-        
-        val maxWidth = input.maxOfOrNull { it.length } ?: 0
-        if (maxWidth == 0) return 0L
-        
+
+    fun parse(input: List<String>): Map<Int,Column> {
         val lastIdx = input.lastIndex
         val operations = input[lastIdx].split(" ").map { it.trim() }.filter{ !it.isEmpty() }
         val numberRows = input.subList(0, lastIdx)
-        
-        val rows = mutableMapOf<Int,Column>()
+
+        val columns = mutableMapOf<Int,Column>()
         for(line in numberRows) {
             val numbers: List<Long> = line
                 .split(" ")
@@ -30,26 +27,69 @@ fun main() {
                 .filter { !it.isEmpty() }
                 .map { it.toLong() }
             for(i in numbers.indices) {
-                if(!rows.contains(i)) {
-                    rows[i] = Column()
+                if(!columns.contains(i)) {
+                    columns[i] = Column()
                 }
-                rows[i]!!.numbers.add(numbers[i])
+                columns[i]!!.numbers.add(numbers[i])
             }
         }
 
         for(i in operations.indices) {
-            rows[i]!!.operation = operations[i].trim()[0]
+            columns[i]!!.operation = operations[i].trim()[0]
         }
+        return columns
+    }
 
-        val rowSums =
-            rows.values
+    fun part1(input: List<String>): Long {
+        val cols = parse(input)
+        val colSums =
+            cols.values
                 .map { it.calculate() }
 
-        return rowSums.sum()
+        return colSums.sum()
     }
 
     fun part2(input: List<String>): Long {
-        return 0L
+        val transposed = input
+            .map { it.toList() }
+
+        val cols = mutableListOf<Long>()
+        val numbers = mutableListOf<Long>()
+        for(x in transposed[0].count()-1 downTo 0) {
+            var op = ' '
+            var number = ""
+            for(y in 0 ..< input.count()) {
+                val char = if(transposed[y].count() <= x) {
+                    " "
+                } else {
+                    transposed[y][x]
+                }
+                when(char) {
+                    '*' -> {
+                        op = '*'
+                        break
+                    }
+                    '+' -> {
+                        op = '+'
+                        break
+                    }
+                    else -> number += char
+                }
+            }
+            if (op != ' ') {
+                numbers.add(number.trim().toLong())
+                when(op) {
+                    '+' -> cols.add(numbers.sum())
+                    '*' -> cols.add(numbers.fold(1L) { a, i -> a * i })
+                }
+                numbers.clear()
+            } else {
+                if(number.trim().isEmpty()) continue
+                numbers.add(number.trim().toLong())
+            }
+        }
+
+        return cols.sum()
     }
 
     val day = 6
@@ -60,5 +100,5 @@ fun main() {
     check("Part 1", 5361735137219, part1(input))
 
     check("Part 2 - Test", 3263827, part2(testInput))
-    check("Part 2", 0, part2(input))
+    check("Part 2", 11744693538946, part2(input))
 }
