@@ -48,3 +48,12 @@ enum class AllDirections(val x: Int, val y: Int) {
     DOWN(0, 1),
     DOWN_RIGHT(1, 1)
 }
+
+data class Coord3d(val x: Long, val y: Long, val z: Long)
+
+fun Coord3d.distanceTo(other: Coord3d): Double {
+    val dx = (this.x - other.x).toDouble()
+    val dy = (this.y - other.y).toDouble()
+    val dz = (this.z - other.z).toDouble()
+    return kotlin.math.sqrt(dx * dx + dy * dy + dz * dz)
+}
