@@ -7,6 +7,14 @@ kotlin {
     jvmToolchain(24)
 }
 
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.locationtech.jts:jts-core:1.20.0")
+}
+
 sourceSets {
     main {
         kotlin.srcDir("src")
