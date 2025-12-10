@@ -130,7 +130,7 @@ fun main() {
             solver.Add(ctx.mkGe(v, ctx.mkInt(0)))
         }
 
-        // For each light position, add constraint that sum of presses equals joltage
+        // For each joltage position, add constraint that sum of presses equals joltage
         for (pos in machine.joltage.indices) {
             val terms = machine.buttons.mapIndexed { btnIdx, button ->
                 val coefficient = if (pos in button) 1 else 0
