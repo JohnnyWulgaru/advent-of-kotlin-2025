@@ -1,6 +1,7 @@
 
 import com.microsoft.z3.Expr
 import com.microsoft.z3.FuncInterp
+import kotlin.time.measureTimedValue
 
 
 fun main() {
@@ -24,7 +25,47 @@ fun main() {
         return Machine(targetLights, buttons, joltage)
     }
 
-    fun findMinPresses(machine: Machine): Int {
+
+    // Recursive version with memoization
+    fun findMinPressesRecursive(machine: Machine): Int {
+        val initialState = List(machine.targetLights.size) { false }
+        val memo = mutableMapOf<String, Int>()
+
+        fun dfs(currState: List<Boolean>, depth: Int, visited: Set<String>): Int {
+            if (currState == machine.targetLights) {
+                return depth
+            }
+
+            val stateStr = currState.toString()
+            memo[stateStr]?.let { cachedDepth ->
+                if (cachedDepth <= depth) return Int.MAX_VALUE
+            }
+            memo[stateStr] = depth
+
+            var minPresses = Int.MAX_VALUE
+
+            for (button in machine.buttons) {
+                val newState = currState.toMutableList()
+                for (index in button) {
+                    newState[index] = !newState[index]
+                }
+
+                val newStateStr = newState.toString()
+                if (newStateStr !in visited) {
+                    val result = dfs(newState, depth + 1, visited + newStateStr)
+                    minPresses = minOf(minPresses, result)
+                }
+            }
+
+            return minPresses
+        }
+
+        val result = dfs(initialState, 0, setOf(initialState.toString()))
+        return if (result == Int.MAX_VALUE) 0 else result
+    }
+
+    // queue & visited lists
+    fun findMinPressesQueue(machine: Machine): Int {
         val initialState = List(machine.targetLights.size) { false }
 
         val queue = ArrayDeque<Pair<List<Boolean>, Int>>()
@@ -53,6 +94,21 @@ fun main() {
         }
 
         return 0
+    }
+
+    fun findMinPresses(machine: Machine): Int {
+        val (queueResult, queueTime) = measureTimedValue { findMinPressesQueue(machine) }
+        val (recursiveResult, recursiveTime) = measureTimedValue { findMinPressesRecursive(machine) }
+
+        println("Find Min Presses Durations:")
+        println("\tQueue: ${queueTime.inWholeMilliseconds}ms")
+        println("\tRecursive: ${recursiveTime.inWholeMilliseconds}ms")
+
+        if(queueResult != recursiveResult) {
+            throw IllegalStateException("Results don't match! Queue: $queueResult, Recursive: $recursiveResult")
+        }
+
+        return queueResult
     }
 
     fun part1(input: List<String>): Long {
