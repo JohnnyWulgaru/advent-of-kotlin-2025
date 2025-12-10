@@ -1,4 +1,8 @@
 
+import com.microsoft.z3.Expr
+import com.microsoft.z3.FuncInterp
+
+
 fun main() {
     data class Machine(
         val targetLights: List<Boolean>,
@@ -58,9 +62,54 @@ fun main() {
         }
     }
 
-    fun part2(input: List<String>): Long {
-        return 0L
+    fun solveWithZ3(machine: Machine): Int {
+        val ctx = com.microsoft.z3.Context()
+        val solver = ctx.mkOptimize()
+
+        // Setup buttons (can't be pressed negative times!)
+        val pressCount = machine.buttons.indices.map { i ->
+            ctx.mkIntConst("button_$i")
+        }
+        pressCount.forEach { v ->
+            solver.Add(ctx.mkGe(v, ctx.mkInt(0)))
+        }
+
+        // For each light position, add constraint that sum of presses equals joltage
+        for (pos in machine.joltage.indices) {
+            val terms = machine.buttons.mapIndexed { btnIdx, button ->
+                val coefficient = if (pos in button) 1 else 0
+                ctx.mkMul(pressCount[btnIdx], ctx.mkInt(coefficient))
+            }
+
+            solver.Add(ctx.mkEq(
+                ctx.mkAdd(*terms.toTypedArray()),
+                ctx.mkInt(machine.joltage[pos])
+            ))
+        }
+
+
+        // additional objective so we can minimize button presses
+        val objective = ctx.mkAdd(*pressCount.toTypedArray())
+        solver.MkMinimize(objective)
+
+        if (solver.Check() == com.microsoft.z3.Status.SATISFIABLE) {
+            val model = solver.model
+            return pressCount.sumOf { v ->
+                model.evaluate(v, false).toString().toInt()
+            }
+        }
+
+        return 0
     }
+
+    fun part2(input: List<String>): Long {
+        return input.sumOf { line ->
+            val machine = parseMachine(line)
+            solveWithZ3(machine).toLong()
+        }
+    }
+
+
 
     val day = 10
     val testInput = readInput("Day%02d_test".format(day))
@@ -70,5 +119,5 @@ fun main() {
     check("Part 1", 514, part1(input))
 
     check("Part 2 - Test", 33, part2(testInput))
-    check("Part 2", 0, part2(input))
+    check("Part 2", 21824, part2(input))
 }

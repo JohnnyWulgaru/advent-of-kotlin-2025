@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation("org.locationtech.jts:jts-core:1.20.0")
+    implementation("tools.aqua:z3-turnkey:4.13.0.1")
 }
 
 sourceSets {
