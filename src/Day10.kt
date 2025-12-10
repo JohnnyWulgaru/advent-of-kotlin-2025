@@ -143,7 +143,6 @@ fun main() {
             ))
         }
 
-
         // additional objective so we can minimize button presses
         val objective = ctx.mkAdd(*pressCount.toTypedArray())
         solver.MkMinimize(objective)
