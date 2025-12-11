@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "2.2.21"
     application
@@ -32,4 +34,9 @@ tasks {
     wrapper {
         gradleVersion = "9.2.1"
     }
+}
+val compileKotlin: KotlinCompile by tasks
+
+compileKotlin.compilerOptions {
+    freeCompilerArgs.set(listOf("-XXLanguage:+NestedTypeAliases"))
 }
